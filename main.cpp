@@ -1,28 +1,28 @@
 #include <iostream>
-#define ROWS 4
-#define COLS 3
+#define LENGTH 21 
 
 
-void print(int (*image)[ROWS][COLS]);
+void print(int (*image)[LENGTH][LENGTH]);
 
 int main() {
-	int image[ROWS][COLS];
+	int QR[LENGTH][LENGTH];
 
-	for (int i{0}; i < ROWS; ++i) {
-		for (int j{0}; j < COLS; ++j) {
-			image[i][j] = 0;
+	for (int i{0}; i < LENGTH; ++i) {
+		for (int j{0}; j < LENGTH; ++j) {
+			QR[i][j] = 0;
 		}
 	}
 	
-	print(&image);
-		
+	print(&QR);
+	
+
 	return 0;
 }
 
 
-void print(int (*image)[ROWS][COLS]){ 
-	for (int i{0}; i < ROWS; ++i) {
-		for (int j{0}; j < COLS; ++j) {
+void print(int (*image)[LENGTH][LENGTH]){ 
+	for (int i{0}; i < LENGTH; ++i) {
+		for (int j{0}; j < LENGTH; ++j) {
       			std::cout << (*image)[i][j];
 		}
 		std::cout << std::endl;
