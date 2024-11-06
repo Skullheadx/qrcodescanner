@@ -1,22 +1,85 @@
+#include <bitset>
 #include <cstdlib>
 #include <iostream>
 #include <cassert>
+#include <vector>
+#define ID_LENGTH 34
+#define MODE_INDICATOR_LENGTH 4
 
-
-std::string generate_id(unsigned int seed);
-
+std::string id_generator(unsigned int seed);
 
 int main() {
-	std::cout << generate_id(69);
+	//std::cout << id_generator(69) << std::endl;
+	std::string input_data{"01234567"};
+	const unsigned int input_length = 8;
+	std::vector<bool> input_data_vector{};
+	for (unsigned int i{0}; i < input_length; i+=3){
+/* 8 - 6 = 2 
+ * 7 - 6 = 1
+ * */	
+		if (input_length - i == 1){
+			std::bitset<4> three_digits = std::stoul(input_data.substr(i, 3));
+			for (std::size_t j{0}; j < three_digits.size(); ++j){
+				input_data_vector.push_back(three_digits[three_digits.size() - j - 1]);
+			}	
+		}
+		else if (input_length - i == 2) {
+			std::bitset<7> three_digits = std::stoul(input_data.substr(i, 3));
+			for (std::size_t j{0}; j < three_digits.size(); ++j){
+				input_data_vector.push_back(three_digits[three_digits.size() - j - 1]);
+			}	
+		}
+		else {
+			std::bitset<10> three_digits = std::stoul(input_data.substr(i, 3));
+			for (std::size_t j{0}; j < three_digits.size(); ++j){
+				input_data_vector.push_back(three_digits[three_digits.size() - j - 1]);
+			}	
+		}
+	}
+	/*
+	int k{0};
+	for (auto i : input_data_vector){
+		if (k++ % 10== 0){std::cout << " ";}
+		std::cout << i;
+	}
+	std::cout << std::endl;
+	*/
+
+	// Convert character count indicator to binary (10 bits for version 1-H):
+	std::bitset<10> character_count_indicator {input_length};
+	for (std::size_t i{0}; i < character_count_indicator.size(); ++i){
+		input_data_vector.insert(input_data_vector.begin(), character_count_indicator[i]);
+	}
+	/*
+	k = 0;
+	for (auto i : input_data_vector){
+		if (k++ % 10== 0){std::cout << " ";}
+		std::cout << i;
+	}
+	std::cout << std::endl;
+	*/
+
+	// Numeric data type
+	std::vector<bool> mode_indicator{0,0,0,1};
+	for (std::size_t i{0}; i < mode_indicator.size(); ++i){
+		input_data_vector.insert(input_data_vector.begin(), mode_indicator[mode_indicator.size() - i - 1]);
+	}
+	int k = 0;
+	for (auto i : input_data_vector){
+
+		if ((k > 4 && (k-4) % 10== 0) || (k == 4)){std::cout << " ";}
+		std::cout << i;
+		k++;
+	}
+	std::cout << std::endl;
+
 	return 0;
 
 }
 
-std::string generate_id(unsigned int seed){
+std::string id_generator(unsigned int seed){
 	srand(seed);
-	const unsigned int ID_LENGTH = 34;
 	std::string ID{};
-	std::cout << ID << std::endl;
 	for (int i{0}; i < ID_LENGTH; ++i) {
 		unsigned int digit{};
 		digit = 10 * (((double) rand()) / RAND_MAX);
@@ -25,3 +88,4 @@ std::string generate_id(unsigned int seed){
 	assert(ID.length() == ID_LENGTH);
 	return ID;
 }
+
