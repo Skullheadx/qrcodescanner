@@ -113,6 +113,50 @@ int main() {
 		std::cout << i;
 		k++;
 	}
+	std::cout << std::endl;
+
+	/* Table 9: V1 QR code M-level Error Correction:
+	 * Total Number of Codewords: 26
+	 * Number of error correction codewords: 10
+	 * value of p = 2
+	 * Number of error correction blocks: 1
+	 * Error correction doe per block: (c,k,r)^a = (26,16,4)^b
+	 * Thus only one block for data codewords
+		*/
+	
+	// Reed-Solomon Error Correction
+	//std::vector<bool> primitive = {1,0,0,0,1,1,1,0,1};
+	unsigned int primitive = 0b100011101;
+	std::cout << "Primitive: " << primitive << std::endl;
+	//unsigned int log_table[255]{}, antilog_table[510]{};
+	std::vector<unsigned int> log_table, antilog_table(510,0);
+
+
+	std::cout << "Log table: ";
+	for (unsigned int i{0}; i < 255; ++i){
+		if (i == 0){
+			log_table.push_back(1);
+		}
+		else if (log_table[i-1] * 2 > 255){
+			log_table.push_back((log_table[i-1] * 2) ^ primitive);
+		}
+		else {
+			log_table.push_back((log_table[i-1] * 2));
+		}
+		std::cout << log_table[i] << " ";
+	}
+	std::cout << std::endl;
+
+	std::cout << "Antilog table: ";
+	for (unsigned int i{0}; i < 255; ++i){
+		antilog_table[log_table[i]] = i;
+		antilog_table[510-log_table[i]-1] = i;
+	}
+	for (unsigned int i{0}; i < 510;++i){
+		std::cout << antilog_table[i] << " ";
+	}
+
+	std::cout << std::endl;
 
 	return 0;
 
