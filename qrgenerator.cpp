@@ -132,7 +132,7 @@ int main() {
 	std::vector<unsigned int> log_table, antilog_table(510,0);
 
 
-	std::cout << "Log table: ";
+	//std::cout << "Log table: ";
 	for (unsigned int i{0}; i < 255; ++i){
 		if (i == 0){
 			log_table.push_back(1);
@@ -143,20 +143,45 @@ int main() {
 		else {
 			log_table.push_back((log_table[i-1] * 2));
 		}
-		std::cout << log_table[i] << " ";
+		//std::cout << log_table[i] << " ";
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 
-	std::cout << "Antilog table: ";
+	//std::cout << "Antilog table: ";
 	for (unsigned int i{0}; i < 255; ++i){
 		antilog_table[log_table[i]] = i;
 		antilog_table[510-log_table[i]-1] = i;
 	}
 	for (unsigned int i{0}; i < 510;++i){
-		std::cout << antilog_table[i] << " ";
+		//std::cout << antilog_table[i] << " ";
 	}
+	//std::cout << std::endl;
 
+	// Data polynomial
+	std::vector<unsigned int> data_polynomial(16,0);
+	for (std::size_t i{0}; i < input_data_vector.size(); i+=8){
+		for(std::size_t j{0}; j < 8;++j){
+			data_polynomial[i/8] += pow(2,8-1-j) * input_data_vector[i+j];
+		}
+	}
+	for (unsigned int i{0}; i < 10; ++i){
+		data_polynomial.push_back(0);
+	}
+	for (auto i : data_polynomial){
+		std::cout << i << " ";
+	}
 	std::cout << std::endl;
+
+	// Generator Polynomial
+	std::vector<unsigned int> generator_polynomial = {1, antilog_table[251], antilog_table[67], antilog_table[46], antilog_table[61], antilog_table[118], antilog_table[70], antilog_table[64], antilog_table[94], antilog_table[32], antilog_table[45]};
+	for (auto i : generator_polynomial){
+		std::cout << i << " ";
+	}
+	std::cout << std::endl;
+
+	// remainder polynomial
+	std::vector<unsigned int> remainder;
+
 
 	return 0;
 
