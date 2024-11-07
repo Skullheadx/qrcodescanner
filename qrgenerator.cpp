@@ -61,15 +61,11 @@ int main() {
 
 	// Numeric data type
 	std::vector<bool> mode_indicator{0,0,0,1};
-	for (std::size_t i{0}; i < mode_indicator.size(); ++i){
-		input_data_vector.insert(input_data_vector.begin(), mode_indicator[mode_indicator.size() - i - 1]);
-	}
+	input_data_vector.insert(input_data_vector.begin(), mode_indicator.begin(), mode_indicator.end());
 
 	// terminator
 	std::vector<bool> terminator{0,0,0,0};
-	for (std::size_t i{0}; i < terminator.size(); ++i){
-		input_data_vector.push_back(terminator[i]);
-	}
+	input_data_vector.insert(input_data_vector.end(), terminator.begin(), terminator.end());
 	
 	int k = 0;
 	for (auto i : input_data_vector){
