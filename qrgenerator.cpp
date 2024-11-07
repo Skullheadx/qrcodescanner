@@ -64,14 +64,59 @@ int main() {
 	for (std::size_t i{0}; i < mode_indicator.size(); ++i){
 		input_data_vector.insert(input_data_vector.begin(), mode_indicator[mode_indicator.size() - i - 1]);
 	}
+
+	// terminator
+	std::vector<bool> terminator{0,0,0,0};
+	for (std::size_t i{0}; i < terminator.size(); ++i){
+		input_data_vector.push_back(terminator[i]);
+	}
+	
 	int k = 0;
 	for (auto i : input_data_vector){
 
-		if ((k > 4 && (k-4) % 10== 0) || (k == 4)){std::cout << " ";}
+		if ((k == 4 || k == input_data_vector.size() - 4) || (k > 4 && k < input_data_vector.size() - 4 && (k-4) % 10== 0)){std::cout << " ";}
 		std::cout << i;
 		k++;
 	}
 	std::cout << std::endl;
+
+	// padding bits
+	for (std::size_t i{0}; i < input_data_vector.size() % 8; ++i){
+		input_data_vector.push_back(0);
+	}
+	
+	k = 0;
+	for (auto i : input_data_vector){
+		if (k != 0 && k % 8 == 0){std::cout << " ";}
+		std::cout << i;
+		k++;
+	}
+	std::cout << std::endl;
+
+	std::cout << "Length: " << input_data_vector.size() << std::endl;
+	std::cout << "Number of data codewords: " << input_data_vector.size() / 8 << std::endl;
+
+
+	// padding bits for codewords for V1 QR code with M-level error correction (table 8)
+	std::vector<bool> pad_codeword1 = {1,1,1,0,1,1,0,0};
+	std::vector<bool> pad_codeword2 = {0,0,0,1,0,0,0,1};
+	std::size_t code_words_to_add =16 - (input_data_vector.size() / 8); 
+	for (std::size_t i{0}; i < code_words_to_add; ++i){
+		if (i % 2 == 0){
+			input_data_vector.insert(input_data_vector.end(), pad_codeword1.begin(), pad_codeword1.end());
+		}
+		else {
+			input_data_vector.insert(input_data_vector.end(), pad_codeword2.begin(), pad_codeword2.end());
+		}
+	}
+
+
+	k = 0;
+	for (auto i : input_data_vector){
+		if (k != 0 && k % 8 == 0){std::cout << " ";}
+		std::cout << i;
+		k++;
+	}
 
 	return 0;
 
