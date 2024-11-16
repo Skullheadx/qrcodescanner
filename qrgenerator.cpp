@@ -13,6 +13,7 @@ std::size_t get_degree(std::vector<unsigned int> polynomial);
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value);
 
 int main() {
+	int k;
 	//std::cout << id_generator(69) << std::endl;
 	std::string input_data{"01234567"};
 	const unsigned int input_length = 8;
@@ -41,7 +42,7 @@ int main() {
 		}
 	}
 	/*
-	int k{0};
+	k{0};
 	for (auto i : input_data_vector){
 		if (k++ % 10== 0){std::cout << " ";}
 		std::cout << i;
@@ -69,7 +70,7 @@ int main() {
 	std::vector<bool> terminator{0,0,0,0};
 	input_data_vector.insert(input_data_vector.end(), terminator.begin(), terminator.end());
 	/*
-	int k = 0;
+	k = 0;
 	for (auto i : input_data_vector){
 
 		if ((k == 4 || k == input_data_vector.size() - 4) || (k > 4 && k < input_data_vector.size() - 4 && (k-4) % 10== 0)){std::cout << " ";}
@@ -82,7 +83,7 @@ int main() {
 	for (std::size_t i{0}; i < input_data_vector.size() % 8; ++i){
 		input_data_vector.push_back(0);
 	}
-	int k = 0;
+	k = 0;
 	for (auto i : input_data_vector){
 		if (k != 0 && k % 8 == 0){std::cout << " ";}
 		std::cout << i;
@@ -233,12 +234,27 @@ int main() {
 	//std::cout << "Error correction codewords: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
 
 	remainder.erase(remainder.begin(), remainder.begin() + remainder.size() - get_degree(remainder) - 1);
-	std::cout << "Error correction codewords: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
+	std::cout << "Error correction polynomial coefficients: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
+	std::cout << "Error Correction Codeword size: " << remainder.size() << std::endl;
 
 	
+	std::vector<bool> error_correction_codewords{};
+	for (std::size_t i{0}; i < remainder.size(); ++i) {
+		std::bitset<8> val = remainder[i];
+		for (std::size_t j{0}; j < 8; ++j){
+			error_correction_codewords.push_back(val[j]);
+		}
+	}
 
 
-
+	std::cout << "Error Correction Codewords: ";
+	k = 0;
+	for (auto i : error_correction_codewords){
+		if (k != 0 && k % 8 == 0){std::cout << " ";}
+		std::cout << i;
+		k++;
+	}
+	std::cout << std::endl;
 
 
 	return 0;
