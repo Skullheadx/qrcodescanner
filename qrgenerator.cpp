@@ -6,7 +6,11 @@
 #define ID_LENGTH 34
 #define MODE_INDICATOR_LENGTH 4
 
+std::vector<unsigned int> log_table(256, 0), antilog_table(255,0);
+
 std::string id_generator(unsigned int seed);
+std::size_t get_degree(std::vector<unsigned int> polynomial);
+std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value);
 
 int main() {
 	//std::cout << id_generator(69) << std::endl;
@@ -44,7 +48,6 @@ int main() {
 	}
 	std::cout << std::endl;
 	*/
-
 	// Convert character count indicator to binary (10 bits for version 1-H):
 	std::bitset<10> character_count_indicator {input_length};
 	for (std::size_t i{0}; i < character_count_indicator.size(); ++i){
@@ -58,7 +61,6 @@ int main() {
 	}
 	std::cout << std::endl;
 	*/
-
 	// Numeric data type
 	std::vector<bool> mode_indicator{0,0,0,1};
 	input_data_vector.insert(input_data_vector.begin(), mode_indicator.begin(), mode_indicator.end());
@@ -66,7 +68,7 @@ int main() {
 	// terminator
 	std::vector<bool> terminator{0,0,0,0};
 	input_data_vector.insert(input_data_vector.end(), terminator.begin(), terminator.end());
-	
+	/*
 	int k = 0;
 	for (auto i : input_data_vector){
 
@@ -75,13 +77,12 @@ int main() {
 		k++;
 	}
 	std::cout << std::endl;
-
+	*/
 	// padding bits
 	for (std::size_t i{0}; i < input_data_vector.size() % 8; ++i){
 		input_data_vector.push_back(0);
 	}
-	
-	k = 0;
+	int k = 0;
 	for (auto i : input_data_vector){
 		if (k != 0 && k % 8 == 0){std::cout << " ";}
 		std::cout << i;
@@ -91,7 +92,6 @@ int main() {
 
 	std::cout << "Length: " << input_data_vector.size() << std::endl;
 	std::cout << "Number of data codewords: " << input_data_vector.size() / 8 << std::endl;
-
 
 	// padding bits for codewords for V1 QR code with M-level error correction (table 8)
 	std::vector<bool> pad_codeword1 = {1,1,1,0,1,1,0,0};
@@ -129,33 +129,47 @@ int main() {
 	unsigned int primitive = 0b100011101;
 	std::cout << "Primitive: " << primitive << std::endl;
 	//unsigned int log_table[255]{}, antilog_table[510]{};
-	std::vector<unsigned int> log_table, antilog_table(510,0);
 
-
-	//std::cout << "Log table: ";
 	for (unsigned int i{0}; i < 255; ++i){
 		if (i == 0){
-			log_table.push_back(1);
-		}
-		else if (log_table[i-1] * 2 > 255){
-			log_table.push_back((log_table[i-1] * 2) ^ primitive);
+			antilog_table[0] = 1;
 		}
 		else {
-			log_table.push_back((log_table[i-1] * 2));
+			unsigned int antilog_value = antilog_table[i-1] * 2;
+			if (antilog_value >= 255){
+				antilog_value ^= primitive;
+			}
+			antilog_table[i] = antilog_value;
 		}
-		//std::cout << log_table[i] << " ";
 	}
-	//std::cout << std::endl;
+	//std::cout << "Antilog table: ";for (unsigned int i{0}; i <255;++i){std::cout << antilog_table[i] << " ";}std::cout << std::endl;
+	
 
-	//std::cout << "Antilog table: ";
-	for (unsigned int i{0}; i < 255; ++i){
-		antilog_table[log_table[i]] = i;
-		antilog_table[510-log_table[i]-1] = i;
+	for (unsigned int i{0}; i < 256; ++i){
+		if (i == 0){
+			log_table[0] = -1;
+		}
+		else {
+			log_table[antilog_table[i]] = i;
+		}
+			
 	}
-	for (unsigned int i{0}; i < 510;++i){
-		//std::cout << antilog_table[i] << " ";
-	}
-	//std::cout << std::endl;
+
+	//std::cout << "Log table: ";for (auto i: log_table){std::cout << i << " ";}std::cout << std::endl;
+	
+	// print out important values in log table
+	/*
+	std::cout << log_table[1] << std::endl;
+	std::cout << log_table[2] << std::endl;
+	std::cout << log_table[4] << std::endl;
+	std::cout << log_table[8] << std::endl;
+	std::cout << log_table[16] << std::endl;
+	std::cout << log_table[32] << std::endl;
+	std::cout << log_table[64] << std::endl;
+	std::cout << log_table[128] << std::endl;
+	std::cout << log_table[29] << std::endl;
+	std::cout << log_table[58] << std::endl;
+	*/
 
 	// Data polynomial
 	std::vector<unsigned int> data_polynomial(16,0);
@@ -167,6 +181,8 @@ int main() {
 	for (unsigned int i{0}; i < 10; ++i){
 		data_polynomial.push_back(0);
 	}
+
+	std::cout << "Data Polynomial (size: "<< data_polynomial.size() << "): ";
 	for (auto i : data_polynomial){
 		std::cout << i << " ";
 	}
@@ -174,18 +190,88 @@ int main() {
 
 	// Generator Polynomial
 	std::vector<unsigned int> generator_polynomial = {1, antilog_table[251], antilog_table[67], antilog_table[46], antilog_table[61], antilog_table[118], antilog_table[70], antilog_table[64], antilog_table[94], antilog_table[32], antilog_table[45]};
+
+	std::size_t generator_shift_amount = data_polynomial.size() - generator_polynomial.size();
+	for (std::size_t i{0}; i < generator_shift_amount; ++i){
+		generator_polynomial.push_back(0);
+	}
+
+	std::cout << "Generator Polynomial (size: " << generator_polynomial.size() << "): ";
 	for (auto i : generator_polynomial){
 		std::cout << i << " ";
 	}
 	std::cout << std::endl;
 
 	// remainder polynomial
-	std::vector<unsigned int> remainder;
+	std::vector<unsigned int> remainder = data_polynomial;
+	for (unsigned int c{0}; c <= generator_shift_amount; ++c){	
+		// find scaling factor for generator polynomial
+		unsigned int scaling_factor = antilog_table[log_table[remainder[remainder.size() - 1 - get_degree(remainder)]] - log_table[generator_polynomial[generator_polynomial.size() - 1 - get_degree(generator_polynomial)]]];
+		if (scaling_factor < 0){
+				scaling_factor += 255;
+			}
+		generator_polynomial = field_multiply(generator_polynomial, scaling_factor);
+		//std::cout << scaling_factor << std::endl;
+		//std::cout << "after field multiply: "; for (auto val: generator_polynomial){std::cout << val << " ";}std::cout<<std::endl;
+		for (std::size_t i{0}; i < remainder.size(); ++i){
+			remainder[i] ^= generator_polynomial[i];
+			if (remainder[i] > 255){
+					remainder[i] ^= primitive;
+				}
+			//std::cout << remainder[i] << " ";
+		}
+		//std::cout << std::endl;
+		unsigned int unscaling_factor = ((255 - log_table[scaling_factor]) % 255 + 255) % 255;
+		generator_polynomial = field_multiply(generator_polynomial, antilog_table[unscaling_factor]);
+		//std::cout << "after unmultiply: "; for (auto val: generator_polynomial){std::cout << val << " ";}std::cout<<std::endl;
+
+		generator_polynomial.insert(generator_polynomial.begin(), 0);
+		generator_polynomial.pop_back();
+	}
+
+	//std::cout << get_degree(remainder) << std::endl;
+	//std::cout << "Error correction codewords: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
+
+	remainder.erase(remainder.begin(), remainder.begin() + remainder.size() - get_degree(remainder) - 1);
+	std::cout << "Error correction codewords: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
+
+	
+
+
+
 
 
 	return 0;
 
 }
+
+// do not use until main function has defined log and antilog tables;
+std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value){
+	if (value == 0){
+		return std::vector<unsigned int>(polynomial.size(), 0);
+	}
+	for (std::size_t i{0}; i < polynomial.size(); ++i){
+		if (polynomial[i] == 0) {
+			polynomial[i] = 0;
+		}
+		else{
+			unsigned int log_sum = (log_table[value] + log_table[polynomial[i]]) % 255;
+			polynomial[i] = antilog_table[log_sum];
+		}
+	}
+	return polynomial;
+}
+
+
+std::size_t get_degree(std::vector<unsigned int> polynomial){
+	for (std::size_t i{0}; i < polynomial.size(); ++i){
+		if (polynomial[i] != 0){
+			return polynomial.size() - i - 1;
+		}
+	}
+	return polynomial.size() - 1;
+}
+
 
 std::string id_generator(unsigned int seed){
 	srand(seed);
