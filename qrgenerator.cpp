@@ -5,12 +5,15 @@
 #include <vector>
 #define ID_LENGTH 34
 #define MODE_INDICATOR_LENGTH 4
+#define grid_length 21
 
 std::vector<unsigned int> log_table(256, 0), antilog_table(255,0);
 
 std::string id_generator(unsigned int seed);
 std::size_t get_degree(std::vector<unsigned int> polynomial);
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value);
+std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value);
+void print_grid(std::vector<std::vector<bool>> grid);
 
 int main() {
 	int k;
@@ -272,10 +275,35 @@ int main() {
 	}
 	std::cout << std::endl;
 	
+	std::vector<std::vector<bool>> grid(21, std::vector<bool> (21, 0)); 
+	grid = set_square(grid, 0,0,7,1);
+	grid = set_square(grid, 1,1,5,0);
+	grid = set_square(grid, 2,2,3,1);
+	print_grid(grid);
 
 	return 0;
 
 }
+
+void print_grid(std::vector<std::vector<bool>> grid){
+	for (std::size_t i{}; i < 21; ++i){
+		for (std::size_t j{}; j < 21; ++j){
+			std::cout << grid[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+	std::cout << std::endl;
+}
+
+std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value){
+	for (std::size_t i{x}; i < x + length; ++i){
+		for (std::size_t j{y}; j < y + length; ++j){
+			grid[i][j] = value;
+	      }
+	}
+	return grid;
+}
+
 
 // do not use until main function has defined log and antilog tables;
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value){
