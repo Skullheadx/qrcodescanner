@@ -83,6 +83,7 @@ int main() {
 	for (std::size_t i{0}; i < input_data_vector.size() % 8; ++i){
 		input_data_vector.push_back(0);
 	}
+	/*
 	k = 0;
 	for (auto i : input_data_vector){
 		if (k != 0 && k % 8 == 0){std::cout << " ";}
@@ -90,9 +91,9 @@ int main() {
 		k++;
 	}
 	std::cout << std::endl;
-
-	std::cout << "Length: " << input_data_vector.size() << std::endl;
-	std::cout << "Number of data codewords: " << input_data_vector.size() / 8 << std::endl;
+	*/
+	//std::cout << "Length: " << input_data_vector.size() << std::endl;
+	//std::cout << "Number of data codewords: " << input_data_vector.size() / 8 << std::endl;
 
 	// padding bits for codewords for V1 QR code with M-level error correction (table 8)
 	std::vector<bool> pad_codeword1 = {1,1,1,0,1,1,0,0};
@@ -106,6 +107,9 @@ int main() {
 			input_data_vector.insert(input_data_vector.end(), pad_codeword2.begin(), pad_codeword2.end());
 		}
 	}
+
+	//std::cout << "Bit Length: " << input_data_vector.size() << std::endl;
+	std::cout << "Data Codewords (size = " << input_data_vector.size() / 8 << "): ";
 
 
 	k = 0;
@@ -128,7 +132,7 @@ int main() {
 	// Reed-Solomon Error Correction
 	//std::vector<bool> primitive = {1,0,0,0,1,1,1,0,1};
 	unsigned int primitive = 0b100011101;
-	std::cout << "Primitive: " << primitive << std::endl;
+	//std::cout << "Primitive: " << primitive << std::endl;
 	//unsigned int log_table[255]{}, antilog_table[510]{};
 
 	for (unsigned int i{0}; i < 255; ++i){
@@ -182,13 +186,13 @@ int main() {
 	for (unsigned int i{0}; i < 10; ++i){
 		data_polynomial.push_back(0);
 	}
-
+	/*
 	std::cout << "Data Polynomial (size: "<< data_polynomial.size() << "): ";
 	for (auto i : data_polynomial){
 		std::cout << i << " ";
 	}
 	std::cout << std::endl;
-
+	*/
 	// Generator Polynomial
 	std::vector<unsigned int> generator_polynomial = {1, antilog_table[251], antilog_table[67], antilog_table[46], antilog_table[61], antilog_table[118], antilog_table[70], antilog_table[64], antilog_table[94], antilog_table[32], antilog_table[45]};
 
@@ -196,13 +200,14 @@ int main() {
 	for (std::size_t i{0}; i < generator_shift_amount; ++i){
 		generator_polynomial.push_back(0);
 	}
-
+	
+	/*
 	std::cout << "Generator Polynomial (size: " << generator_polynomial.size() << "): ";
 	for (auto i : generator_polynomial){
 		std::cout << i << " ";
 	}
 	std::cout << std::endl;
-
+	*/
 	// remainder polynomial
 	std::vector<unsigned int> remainder = data_polynomial;
 	for (unsigned int c{0}; c <= generator_shift_amount; ++c){	
@@ -234,8 +239,7 @@ int main() {
 	//std::cout << "Error correction codewords: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
 
 	remainder.erase(remainder.begin(), remainder.begin() + remainder.size() - get_degree(remainder) - 1);
-	std::cout << "Error correction polynomial coefficients: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
-	std::cout << "Error Correction Codeword size: " << remainder.size() << std::endl;
+	//std::cout << "Error correction polynomial coefficients: ";for (auto i: remainder){std::cout << i << " ";}std::cout << std::endl;
 
 	
 	std::vector<bool> error_correction_codewords{};
@@ -247,7 +251,7 @@ int main() {
 	}
 
 
-	std::cout << "Error Correction Codewords: ";
+	std::cout << "Error Correction Codewords (size = " << remainder.size()<<"): ";
 	k = 0;
 	for (auto i : error_correction_codewords){
 		if (k != 0 && k % 8 == 0){std::cout << " ";}
@@ -255,6 +259,7 @@ int main() {
 		k++;
 	}
 	std::cout << std::endl;
+	
 
 
 	return 0;
