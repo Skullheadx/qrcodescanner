@@ -260,7 +260,18 @@ int main() {
 	}
 	std::cout << std::endl;
 	
-
+	// final message codeword sequence
+	std::vector<bool> codeword_message = input_data_vector;
+	codeword_message.insert(codeword_message.begin(), error_correction_codewords.begin(), error_correction_codewords.end());
+	std::cout << "Codeword Message (size = " << codeword_message.size()/8<<"): ";
+	k = 0;
+	for (auto i : codeword_message){
+		if (k != 0 && k % 8 == 0){std::cout << " ";}
+		std::cout << i;
+		k++;
+	}
+	std::cout << std::endl;
+	
 
 	return 0;
 
