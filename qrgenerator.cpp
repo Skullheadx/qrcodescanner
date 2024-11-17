@@ -414,8 +414,67 @@ int main() {
 	//std::cout << "x=" << x << ",y=" << y << std::endl;
 	grid = symbol_placement_down(grid, x, y, character_symbol_horiz4);
 
-	print_grid(grid);
+	//print_grid(grid);
+	
+	
+	std::vector<std::vector<std::vector<bool>>> mask_patterns(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 0)));
+	for (std::size_t i{}; i < 21; ++i){
+		for (std::size_t j{}; j < 21; ++j){
+			if ((i < 9 && j < 9) || (i > 12 && j < 9) || (i < 9 && j > 12) || i == 6 || j == 6){
+				continue;
+			}
+			// 000
+			if ((i+j)%2 == 0){
+				mask_patterns[0][i][j] = 1;
+			}
+			// 001
+			if (i % 2 == 0){
+				mask_patterns[1][i][j] = 1;
+			}
+			// 010
+			if (j % 3 == 0){
+				mask_patterns[2][i][j] = 1;
+			}
+			// 011
+			if ((i+j)%3 == 0){
+				mask_patterns[3][i][j] = 1;
+			}
+			// 100
+			if ((i / 2 + j / 3) % 2 == 0){
+				mask_patterns[4][i][j] = 1;
+			}
+			// 101
+			if ((i * j) % 2 + (i * j) % 3 == 0){
+				mask_patterns[5][i][j] = 1;
+			}	
+			// 110
+			if (((i * j) % 2 + (i * j) % 3 ) % 2 == 0){
+				mask_patterns[6][i][j] = 1;
+			}	
+			// 111
+			if ((((i + j) % 2 + (i * j) % 3 ) % 2 == 0)){
+				mask_patterns[7][i][j] = 1;
+			}	
+		}
+	}	 
 
+	//print_grid(mask_patterns[7]);
+	
+
+	std::vector<std::vector<std::vector<bool>>> mask_pattern_results(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 1)));
+	
+	for (std::size_t ind{}; ind < 8; ++ind){
+		for (std::size_t i{}; i < 21; ++i){
+			for (std::size_t j{}; j < 21; ++j){
+				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && grid[i][j]);
+				if (mask_patterns[ind][i][j]){
+					mask_pattern_results[ind][i][j] = !mask_pattern_results[ind][i][j];
+				}
+			}
+		}
+	}
+
+	print_grid(mask_pattern_results[0]);
 	return 0;
 
 }
