@@ -275,10 +275,31 @@ int main() {
 	}
 	std::cout << std::endl;
 	
-	std::vector<std::vector<bool>> grid(21, std::vector<bool> (21, 0)); 
+	std::vector<std::vector<bool>> grid(21, std::vector<bool> (21, 0));
+	// top left finder pattern
 	grid = set_square(grid, 0,0,7,1);
 	grid = set_square(grid, 1,1,5,0);
 	grid = set_square(grid, 2,2,3,1);
+
+	// top right finder pattern
+	grid = set_square(grid, 14,0,7,1);
+	grid = set_square(grid, 15,1,5,0);
+	grid = set_square(grid, 16,2,3,1);
+
+	// bottom left finder pattern
+	grid = set_square(grid, 0,14,7,1);
+	grid = set_square(grid, 1,15,5,0);
+	grid = set_square(grid, 2,16,3,1);
+
+
+	// timing pattern horiz
+	for (std::size_t i{8}; i < 8+5; ++i){
+		grid[6][i] = (i+1) % 2;
+	}
+	// timing pattern vert 
+	for (std::size_t i{8}; i < 8+5; ++i){
+		grid[i][6] = (i+1) % 2;
+	}
 	print_grid(grid);
 
 	return 0;
@@ -288,7 +309,7 @@ int main() {
 void print_grid(std::vector<std::vector<bool>> grid){
 	for (std::size_t i{}; i < 21; ++i){
 		for (std::size_t j{}; j < 21; ++j){
-			std::cout << grid[i][j] << " ";
+			std::cout << grid[i][j];
 		}
 		std::cout << std::endl;
 	}
