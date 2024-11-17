@@ -485,7 +485,6 @@ int main() {
 	test_grid = set_rect(test_grid, 14, 11, 7, 3, 1);
 	test_grid = set_rect(test_grid, 14, 15, 7, 1, 1);
 
-
 	// timing pattern horiz
 	for (std::size_t i{8}; i < 8+5; ++i){
 		test_grid[6][i] = (i+1) % 2;
@@ -494,6 +493,7 @@ int main() {
 	for (std::size_t i{8}; i < 8+5; ++i){
 		test_grid[i][6] = (i+1) % 2;
 	}
+
 	print_grid(test_grid);
 	
 	std::vector<std::vector<std::vector<bool>>> mask_pattern_results(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 1)));
@@ -510,8 +510,18 @@ int main() {
 	}
 
 	//print_grid(mask_pattern_results[7]);
+	unsigned int mask_pattern = 0;
+	unsigned int lowest_score = evaluate_symbol(mask_pattern_results[0]);
+	for (std::size_t i{0}; i < 8; ++i){
+		if (evaluate_symbol(mask_pattern_results[i]) < lowest_score){
+			mask_pattern = i;
+			lowest_score = evaluate_symbol(mask_pattern_results[i]);
+		}
+	}
 	
-	std::cout << evaluate_symbol(test_grid);
+	std::cout << "best mask pattern: " << mask_pattern << std::endl;
+	print_grid(mask_pattern_results[mask_pattern]);
+		
 
 
 	return 0;
@@ -601,9 +611,36 @@ unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid){
 		}
 	}
 	points += 3 * area;	
-							
 	
-	print_grid(seen);
+	// 1:1:3:1:1 ratio pattern preceded or followed by light area 4 modules wide
+	std::vector<std::vector<bool>> ratio_patterns = {{0,0,0,0,1,0,1,1,1,0,1},{1,0,1,1,1,0,1,0,0,0,0},{0,0,0,0,1,1,0,0,1,1,1,1,1,1,0,0,1,1},{1,1,0,0,1,1,1,1,1,1,0,0,1,1,0,0,0,0}};
+	for (std::size_t row{0}; row + 10 < 21; ++row){
+		for (std::size_t col{0}; col + 10 < 21; ++col){
+			//std::cout << row << "," << col << std::endl;
+			std::vector<bool> subvector(grid[row].begin() + col, grid[row].begin() + col + 11);
+			//for (auto i: subvector){std::cout << i;} std::cout << std::endl;
+			if (subvector == ratio_patterns[0] || subvector == ratio_patterns[1]){
+				//std::cout << "Hi";
+				points += 40;
+			}
+		}
+	}
+	
+	// proportion of dark modules in entire symbol
+	double percent_dark{0};
+	for (std::size_t i{0}; i < 21; ++i){
+		for (std::size_t j{0}; j < 21; ++j){
+			if (grid[i][j]){
+				percent_dark++;
+			}
+		}
+	}
+	percent_dark /= 21.0 * 21.0;
+	percent_dark *= 100.0;
+	double deviation = std::abs(50 - percent_dark);
+	int k = static_cast<int> (deviation / 5);
+	points += 10 * k;
+
 	return points;
 }
 
