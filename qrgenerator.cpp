@@ -568,38 +568,40 @@ unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid){
 			}
 		}
 	}
-	
+	// Essentially we are trying to find the area of all the blocks of modules of the same area. So we can just find all 2x2 modules of same colour put into seen then add all seen squares to get the total area then mutliply by N_2 to get points	
 	std::vector<std::vector<bool>> seen(21, std::vector<bool>(21,0));
-	for (int length{20}, height{20}; length > 1 && height > 1; --length, --height){
-		//std::cout << length << " " << height << std::endl;
-		for (std::size_t row{0}; row + height < 21; ++row){
-			for (std::size_t col{0}; col + length < 21; ++col){
-				
-				//std::cout << row << "," << col << std::endl;
-				bool square_exists = true;
-				bool value = grid[row][col];
-				for (std::size_t y{row}; y < row + height && square_exists; ++y){
-					for (std::size_t x{col}; x < col + length; ++x){
-						if (grid[y][x] != value || seen[y][x]){
-							square_exists = false;
-							break;
-						}
+	for (std::size_t row{0}; row + 1 < 21; ++row){
+		for (std::size_t col{0}; col + 1 < 21; ++col){
+			//std::cout << row << "," << col << std::endl;
+			bool square_exists = true;
+			bool value = grid[row][col];
+			for (std::size_t y{row}; y < row + 2 && square_exists; ++y){
+				for (std::size_t x{col}; x < col + 2; ++x){
+					if (grid[y][x] != value){
+						square_exists = false;
+						break;
 					}
 				}
-				if (square_exists){
-					points += 3 * length * height;
-					for (std::size_t y{row}; y < row + height; ++y){
-						for (std::size_t x{col}; x < col + length; ++x){
-							seen[y][x] = true;
-						}
+			}
+			if (square_exists){
+				for (std::size_t y{row}; y < row + 2; ++y){
+					for (std::size_t x{col}; x < col + 2; ++x){
+						seen[y][x] = true;
 					}
-
 				}
-							
 			}
 		}
-		//std::cout << std::endl;
 	}
+	unsigned int area{0};
+	for (std::size_t i{0}; i < 21; ++i){
+		for (std::size_t j{0}; j < 21; ++j){
+			if (seen[i][j]){
+				area += 1;
+			}
+		}
+	}
+	points += 3 * area;	
+							
 	
 	print_grid(seen);
 	return points;
