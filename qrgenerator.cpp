@@ -18,6 +18,7 @@ std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>
 std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 std::vector<std::vector<bool>> symbol_placement_up_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
+unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid);
 void print_grid(std::vector<std::vector<bool>> grid);
 
 int main() {
@@ -508,7 +509,11 @@ int main() {
 		}
 	}
 
-	print_grid(mask_pattern_results[7]);
+	//print_grid(mask_pattern_results[7]);
+	
+	std::cout << evaluate_symbol(test_grid);
+
+
 	return 0;
 
 }
@@ -542,6 +547,62 @@ std::vector<std::vector<bool>> set_rect(std::vector<std::vector<bool>> grid, std
 	      }
 	}
 	return grid;
+}
+
+unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid){
+	unsigned int points{0};
+	for (int row{0}; row < 21; ++row){
+		for (int col{0}; col < 21; ++col){
+			unsigned int total_adjacent{0};
+			for (int i{-1}; i <= 1; ++i){
+				for (int j{-1}; j <= 1; ++j){
+					if ((i == 0 && j == 0) || (i + row < 0 || i + row > 20) || (j + col < 0 || j + col > 20)){continue;}
+					if (grid[i + row][j+col] == grid[row][col]){
+						total_adjacent++;
+					}
+				}
+			}
+			points += 3;
+			if (total_adjacent > 5){
+				points += total_adjacent - 5;
+			}
+		}
+	}
+	
+	std::vector<std::vector<bool>> seen(21, std::vector<bool>(21,0));
+	for (int length{20}, height{20}; length > 1 && height > 1; --length, --height){
+		//std::cout << length << " " << height << std::endl;
+		for (std::size_t row{0}; row + height < 21; ++row){
+			for (std::size_t col{0}; col + length < 21; ++col){
+				
+				//std::cout << row << "," << col << std::endl;
+				bool square_exists = true;
+				bool value = grid[row][col];
+				for (std::size_t y{row}; y < row + height && square_exists; ++y){
+					for (std::size_t x{col}; x < col + length; ++x){
+						if (grid[y][x] != value || seen[y][x]){
+							square_exists = false;
+							break;
+						}
+					}
+				}
+				if (square_exists){
+					points += 3 * length * height;
+					for (std::size_t y{row}; y < row + height; ++y){
+						for (std::size_t x{col}; x < col + length; ++x){
+							seen[y][x] = true;
+						}
+					}
+
+				}
+							
+			}
+		}
+		//std::cout << std::endl;
+	}
+	
+	print_grid(seen);
+	return points;
 }
 
 std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
