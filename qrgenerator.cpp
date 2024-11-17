@@ -15,6 +15,8 @@ std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, u
 std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value);
 std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
+std::vector<std::vector<bool>> symbol_placement_up_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
+std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 void print_grid(std::vector<std::vector<bool>> grid);
 
 int main() {
@@ -311,22 +313,107 @@ int main() {
 		for (;y >= 21 - 3 * 4;y-=4){
 			std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
 			codeword_counter++;
-			for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
-			std::cout << "x=" << x << ",y=" << y << std::endl;
+			//for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+			//std::cout << "x=" << x << ",y=" << y << std::endl;
 			grid = symbol_placement_up(grid, x, y, character_symbol);
 		}
 		x -= 2;
 		y = 21 - 2 * 4 -1;
-		std::cout << "x=" << x << ",y=" << y << std::endl;
+		//std::cout << "x=" << x << ",y=" << y << std::endl;
 		for (;y <= 21; y+=4){
 			std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
 			codeword_counter++;
-			for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
-			std::cout << "x=" << x << ",y=" << y << std::endl;
+			//for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+			//std::cout << "x=" << x << ",y=" << y << std::endl;
 			grid = symbol_placement_down(grid, x, y, character_symbol);
 		}
 		y = 21 - 4;
 	}
+
+
+	for (;y >= 21 - 3 * 4;y-=4){
+		std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+		codeword_counter++;
+		//for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+		//std::cout << "x=" << x << ",y=" << y << std::endl;
+		grid = symbol_placement_up(grid, x, y, character_symbol);
+	}
+	
+	// up special
+	std::vector<bool> character_symbol_special1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_special1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up_special(grid, x, y, character_symbol_special1);
+	
+	y = 0;
+	std::vector<bool> character_symbol_top1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_top1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_top1);
+	
+	// down special
+	x -= 2;	
+	y = 3;
+	std::vector<bool> character_symbol_top2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_top2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_top2);
+
+	
+	y = 6 +2;
+	std::vector<bool> character_symbol_special2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_special2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down_special(grid, x, y, character_symbol_special2);
+	
+
+	// printing down long col
+	y += 4;	
+	for (;y < 21;y+=4){
+		std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+		codeword_counter++;
+		//for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+		//std::cout << "x=" << x << ",y=" << y << std::endl;
+		grid = symbol_placement_down(grid, x, y, character_symbol);
+	}
+
+	// fill in data that is between two finder patterns
+	x -= 2;
+	y = 9;
+	std::vector<bool> character_symbol_horiz1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_horiz1);
+	
+	x -= 3;
+	y = 12;
+	std::vector<bool> character_symbol_horiz2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_horiz2);
+
+	x -= 2;
+	y = 9;
+	std::vector<bool> character_symbol_horiz3(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz3) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_horiz3);
+	
+	x -= 2;
+	y = 12;
+	std::vector<bool> character_symbol_horiz4(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz4) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_horiz4);
+
 	print_grid(grid);
 
 	return 0;
@@ -370,7 +457,34 @@ std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>
 
 std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
 	std::size_t counter{7};
-	for (std::size_t row{y}; row > y - 4; --row){
+	for (std::size_t row{y}; row >= y - 3; --row){
+		for (std::size_t col{x}; col < x + 2; ++col){
+			//std::cout << "(" << row << "," << col << ")" <<std::endl;
+			grid[row][col] = character[counter];
+			--counter;
+	      }
+	if (row == 0){break;}
+	}
+	return grid;
+}
+
+std::vector<std::vector<bool>> symbol_placement_up_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
+	std::size_t counter{7};
+	for (std::size_t row{y-1}; row < y + 4; ++row){
+		if (row == 6) {continue;}
+		for (std::size_t col{x}; col < x + 2; ++col){
+			//std::cout << "(" << row << "," << col << ")" <<std::endl;
+			grid[row][col] = character[counter];
+			--counter;
+	      }
+	}
+	return grid;
+}
+
+std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
+	std::size_t counter{7};
+	for (std::size_t row{y}; row > y - 5; --row){
+		if (row == 6) {continue;}
 		for (std::size_t col{x}; col < x + 2; ++col){
 			//std::cout << "(" << row << "," << col << ")" <<std::endl;
 			grid[row][col] = character[counter];
