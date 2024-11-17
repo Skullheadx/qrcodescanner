@@ -13,6 +13,8 @@ std::string id_generator(unsigned int seed);
 std::size_t get_degree(std::vector<unsigned int> polynomial);
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value);
 std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value);
+std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
+std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 void print_grid(std::vector<std::vector<bool>> grid);
 
 int main() {
@@ -300,11 +302,40 @@ int main() {
 	for (std::size_t i{8}; i < 8+5; ++i){
 		grid[i][6] = (i+1) % 2;
 	}
+
+
+	// add codeword message
+	std::size_t x{21-2}, y{21-4};
+	std::size_t codeword_counter{0};
+	for (;x >= 13; x-=2){
+		for (;y >= 21 - 3 * 4;y-=4){
+			std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+			codeword_counter++;
+			for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+			std::cout << "x=" << x << ",y=" << y << std::endl;
+			grid = symbol_placement_up(grid, x, y, character_symbol);
+		}
+		x -= 2;
+		y = 21 - 2 * 4 -1;
+		std::cout << "x=" << x << ",y=" << y << std::endl;
+		for (;y <= 21; y+=4){
+			std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+			codeword_counter++;
+			for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+			std::cout << "x=" << x << ",y=" << y << std::endl;
+			grid = symbol_placement_down(grid, x, y, character_symbol);
+		}
+		y = 21 - 4;
+	}
 	print_grid(grid);
 
 	return 0;
 
 }
+
+
+
+
 
 void print_grid(std::vector<std::vector<bool>> grid){
 	for (std::size_t i{}; i < 21; ++i){
@@ -325,6 +356,29 @@ std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, s
 	return grid;
 }
 
+std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
+	std::size_t counter{7};
+	for (std::size_t row{y}; row < y + 4; ++row){
+		for (std::size_t col{x}; col < x + 2; ++col){
+			//std::cout << "(" << row << "," << col << ")" <<std::endl;
+			grid[row][col] = character[counter];
+			--counter;
+	      }
+	}
+	return grid;
+}
+
+std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character){
+	std::size_t counter{7};
+	for (std::size_t row{y}; row > y - 4; --row){
+		for (std::size_t col{x}; col < x + 2; ++col){
+			//std::cout << "(" << row << "," << col << ")" <<std::endl;
+			grid[row][col] = character[counter];
+			--counter;
+	      }
+	}
+	return grid;
+}
 
 // do not use until main function has defined log and antilog tables;
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value){
