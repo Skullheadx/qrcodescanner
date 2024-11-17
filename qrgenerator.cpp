@@ -20,6 +20,7 @@ std::vector<std::vector<bool>> symbol_placement_up_special(std::vector<std::vect
 std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid);
 void print_grid(std::vector<std::vector<bool>> grid);
+std::vector<bool> calculate_remainder(const std::vector<bool>& data, const std::vector<bool>& generator);
 
 int main() {
 	int k;
@@ -462,7 +463,7 @@ int main() {
 
 	//print_grid(mask_patterns[7]);
 	
-	
+	/*	
 	std::vector<std::vector<bool>> test_grid(21, std::vector<bool> (21, 0));
 	// top left finder pattern
 	test_grid = set_square(test_grid, 0,0,7,1);
@@ -493,15 +494,14 @@ int main() {
 	for (std::size_t i{8}; i < 8+5; ++i){
 		test_grid[i][6] = (i+1) % 2;
 	}
-
-	print_grid(test_grid);
+	*/
 	
 	std::vector<std::vector<std::vector<bool>>> mask_pattern_results(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 1)));
 	
 	for (std::size_t ind{}; ind < 8; ++ind){
 		for (std::size_t i{}; i < 21; ++i){
 			for (std::size_t j{}; j < 21; ++j){
-				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && test_grid[i][j]); // CHANGE test_grid BACK TO grid for REAL USE
+				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && grid[i][j]); // CHANGE test_grid BACK TO grid for REAL USE
 				if (mask_patterns[ind][i][j]){
 					mask_pattern_results[ind][i][j] = !mask_pattern_results[ind][i][j];
 				}
@@ -518,19 +518,60 @@ int main() {
 			lowest_score = evaluate_symbol(mask_pattern_results[i]);
 		}
 	}
-	
-	std::cout << "best mask pattern: " << mask_pattern << std::endl;
+	std::bitset<3> mask_bitset{mask_pattern};
+	std::vector<bool> mask_pattern_bits{mask_bitset[2], mask_bitset[1], mask_bitset[0]};
+	//mask_pattern_bits = {1,0,1}; // REMOVE TESTinG PurposES ONLy	
+
 	print_grid(mask_pattern_results[mask_pattern]);
+	std::cout << "best mask pattern: " << mask_pattern << std::endl;
+	for (auto i : mask_pattern_bits){std::cout << i;} std::cout << std::endl;
 		
+	std::vector<bool> error_correction_level_bits = {0,0};
 
+	std::vector<bool> format_information{};
+	format_information.insert(format_information.begin(), error_correction_level_bits.begin(), error_correction_level_bits.end());
+	format_information.insert(format_information.begin() + 2, mask_pattern_bits.begin(), mask_pattern_bits.end());
 
+	std::cout << "Format information data bits: ";for (auto i : format_information){std::cout << i;} std::cout << std::endl;
+	
+	format_information.insert(format_information.end(), 10, 0);
+	// Generator polynomial: x^10 + x^8 + x^5 + x^4 + x^2 + x + 1
+	std::vector<bool> bch_generator_polynomial = {1,0,1,0,0,1,1,0,1,1,1};
+	std::vector<bool> bch_remainder = calculate_remainder(format_information, bch_generator_polynomial);
+
+	std::cout << "Format information error correction bits: ";for (auto i :bch_remainder){std::cout << i;} std::cout << std::endl;
+	
+	format_information.resize(5);
+	std::vector<bool> format_information_message = format_information;
+	format_information_message.insert(format_information_message.end(), bch_remainder.begin(), bch_remainder.end());
+	std::cout << "Format information all message bits: ";for (auto i : format_information_message){std::cout << i;} std::cout << std::endl;
+
+	std::vector<bool> format_info_mask = {1,0,1,0,1,0,0,0,0,0,1,0,0,1,0};
+	std::cout << "Format information info mask: ";for (auto i : format_info_mask){std::cout << i;} std::cout << std::endl;
+
+	for (std::size_t i{0}; i < 15; ++i){
+		format_information_message[i] = format_information_message[i] ^ format_info_mask[i];
+	}
+
+	std::cout << "error corrected format information: ";for (auto i : format_information_message){std::cout << i;} std::cout << std::endl;
 	return 0;
 
 }
 
 
 
-
+std::vector<bool> calculate_remainder(const std::vector<bool>& data, const std::vector<bool>& generator) {
+	std::vector<bool> dividend = data;
+	for (size_t i = 0; i <= dividend.size() - generator.size(); ++i) {
+		if (dividend[i]) {
+		    for (size_t j = 0; j < generator.size(); ++j) {
+			dividend[i + j] = dividend[i+j] ^ generator[j];
+		    }
+		}
+	}
+	std::vector<bool> remainder(dividend.end() - generator.size() + 1, dividend.end());
+	return remainder;
+}
 
 void print_grid(std::vector<std::vector<bool>> grid){
 	for (std::size_t i{}; i < 21; ++i){
