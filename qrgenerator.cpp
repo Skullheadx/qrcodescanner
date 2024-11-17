@@ -13,6 +13,7 @@ std::string id_generator(unsigned int seed);
 std::size_t get_degree(std::vector<unsigned int> polynomial);
 std::vector<unsigned int> field_multiply(std::vector<unsigned int> polynomial, unsigned int value);
 std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value);
+std::vector<std::vector<bool>> set_rect(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, std::size_t height, bool value);
 std::vector<std::vector<bool>> symbol_placement_up(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 std::vector<std::vector<bool>> symbol_placement_down(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
 std::vector<std::vector<bool>> symbol_placement_up_special(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::vector<bool> character);
@@ -460,13 +461,46 @@ int main() {
 
 	//print_grid(mask_patterns[7]);
 	
+	
+	std::vector<std::vector<bool>> test_grid(21, std::vector<bool> (21, 0));
+	// top left finder pattern
+	test_grid = set_square(test_grid, 0,0,7,1);
+	test_grid = set_square(test_grid, 1,1,5,0);
+	test_grid = set_square(test_grid, 2,2,3,1);
 
+	// top right finder pattern
+	test_grid = set_square(test_grid, 14,0,7,1);
+	test_grid = set_square(test_grid, 15,1,5,0);
+	test_grid = set_square(test_grid, 16,2,3,1);
+
+	// bottom left finder pattern
+	test_grid = set_square(test_grid, 0,14,7,1);
+	test_grid = set_square(test_grid, 1,15,5,0);
+	test_grid = set_square(test_grid, 2,16,3,1);
+
+	test_grid = set_rect(test_grid, 9, 0, 3, 21, 1);
+	test_grid = set_rect(test_grid, 0, 9, 6, 4, 1);
+	test_grid = set_rect(test_grid, 14, 9, 7, 1, 1);
+	test_grid = set_rect(test_grid, 14, 11, 7, 3, 1);
+	test_grid = set_rect(test_grid, 14, 15, 7, 1, 1);
+
+
+	// timing pattern horiz
+	for (std::size_t i{8}; i < 8+5; ++i){
+		test_grid[6][i] = (i+1) % 2;
+	}
+	// timing pattern vert 
+	for (std::size_t i{8}; i < 8+5; ++i){
+		test_grid[i][6] = (i+1) % 2;
+	}
+	print_grid(test_grid);
+	
 	std::vector<std::vector<std::vector<bool>>> mask_pattern_results(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 1)));
 	
 	for (std::size_t ind{}; ind < 8; ++ind){
 		for (std::size_t i{}; i < 21; ++i){
 			for (std::size_t j{}; j < 21; ++j){
-				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && grid[i][j]);
+				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && test_grid[i][j]); // CHANGE test_grid BACK TO grid for REAL USE
 				if (mask_patterns[ind][i][j]){
 					mask_pattern_results[ind][i][j] = !mask_pattern_results[ind][i][j];
 				}
@@ -474,7 +508,7 @@ int main() {
 		}
 	}
 
-	print_grid(mask_pattern_results[0]);
+	print_grid(mask_pattern_results[7]);
 	return 0;
 
 }
@@ -496,6 +530,14 @@ void print_grid(std::vector<std::vector<bool>> grid){
 std::vector<std::vector<bool>> set_square(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, bool value){
 	for (std::size_t i{x}; i < x + length; ++i){
 		for (std::size_t j{y}; j < y + length; ++j){
+			grid[i][j] = value;
+	      }
+	}
+	return grid;
+}
+std::vector<std::vector<bool>> set_rect(std::vector<std::vector<bool>> grid, std::size_t x, std::size_t y, std::size_t length, std::size_t height, bool value){
+	for (std::size_t i{x}; i < x + length; ++i){
+		for (std::size_t j{y}; j < y + height; ++j){
 			grid[i][j] = value;
 	      }
 	}
