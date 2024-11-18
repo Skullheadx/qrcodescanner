@@ -554,6 +554,26 @@ int main() {
 	}
 
 	std::cout << "error corrected format information: ";for (auto i : format_information_message){std::cout << i;} std::cout << std::endl;
+
+
+	// format information positioning
+	for (std::size_t i{0}, counter{14}; i < 21;++i){
+		if (i == 6 || (i >= 9 && i <= 13)){ continue;}
+		grid[i][8] = format_information_message[counter];
+		--counter;
+	}
+	for (std::size_t i{0}, counter{0}; i < 21;++i){
+		if (i == 6 || (i >= 8 && i <= 12)){ continue;}
+		grid[8][i] = format_information_message[counter];
+		++counter;
+	}
+	std::cout << "(" << 4 * 1 + 9 << ',' << 8 << ")" << std::endl;
+	grid[4*1+9][8] = 1;
+
+	print_grid(grid);
+
+
+
 	return 0;
 
 }
