@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cassert>
 #include <vector>
+#include <fstream>
 #define ID_LENGTH 34
 #define MODE_INDICATOR_LENGTH 4
 #define grid_length 21
@@ -21,11 +22,12 @@ std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::ve
 unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid);
 void print_grid(std::vector<std::vector<bool>> grid);
 std::vector<bool> calculate_remainder(const std::vector<bool>& data, const std::vector<bool>& generator);
+void create_image(std::vector<std::vector<bool>> &grid);
 
 int main() {
 	int k;
 	//std::cout << id_generator(69) << std::endl;
-	std::string input_data{"01234567"};
+	std::string input_data{"6969696969"};
 	const unsigned int input_length = 8;
 	std::vector<bool> input_data_vector{};
 	for (unsigned int i{0}; i < input_length; i+=3){
@@ -573,11 +575,27 @@ int main() {
 	print_grid(grid);
 
 
-
+	create_image(grid);
 	return 0;
 
 }
 
+void create_image(std::vector<std::vector<bool>> &grid){
+	std::ofstream file("output.pbm");
+	if (!file){
+		std::cerr << "error creating file" << std::endl;
+	}
+
+	file << "P1\n21 21\n";
+	for (const auto &row : grid){
+		for (bool pixel : row){
+			file << pixel << " ";
+		}
+	file << "\n";
+	}
+	file.close();
+	std::cout << "Image created!" << std::endl;
+}
 
 
 std::vector<bool> calculate_remainder(const std::vector<bool>& data, const std::vector<bool>& generator) {
