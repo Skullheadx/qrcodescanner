@@ -28,7 +28,7 @@ int main() {
 	int k;
 	//std::cout << id_generator(69) << std::endl;
 	std::string input_data{"6969696969"};
-	const unsigned int input_length = 8;
+	const unsigned int input_length = 10;
 	std::vector<bool> input_data_vector{};
 	for (unsigned int i{0}; i < input_length; i+=3){
 /* 8 - 6 = 2 

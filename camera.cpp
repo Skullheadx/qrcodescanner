@@ -10,16 +10,25 @@ unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
 
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
+void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
 
 int main(){
 	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
 
 	read_words_from_file("output.pbm", symbol);
-	print(symbol);
+	//print(symbol);
 	
 	std::vector<bool> format_info = get_format_info(symbol);
 
-	print(format_info);
+	std::cout << "Format Info: "; print(format_info); std::cout << std::endl;
+	std::bitset<3> mask_pattern{};	
+	mask_pattern[0] = format_info[2];
+	mask_pattern[1] = format_info[3];
+	mask_pattern[2] = format_info[4];
+	decode_mask(symbol, mask_pattern.to_ulong());
+	
+	print(symbol);
+
 	
 	return 0;
 }
@@ -107,7 +116,7 @@ std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol){
 		{1,1,1,1,0,1,0,1,1,0,0,1,0,0,0},
 		{1,1,1,1,1,1,1,1,1,1,1,1,1,1,1},
 	};
-	
+	//print(format_info);	
 	std::vector<bool> mask = {1,0,1,0,1,0,0,0,0,0,1,0,0,1,0};
 	vec_xor(format_info, mask);
 
@@ -132,6 +141,55 @@ std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol){
 	}
 
 	return format_info;
+}
+
+void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern){
+	std::vector<std::vector<bool>> data_mask(21, std::vector<bool> (21, 0));
+	for (std::size_t i{}; i < 21; ++i){
+		for (std::size_t j{}; j < 21; ++j){
+			if ((i < 9 && j < 9) || (i > 12 && j < 9) || (i < 9 && j > 12) || i == 6 || j == 6){
+				continue;
+			}
+			// 000
+			if (mask_pattern == 0 && (i+j)%2 == 0){
+				data_mask[i][j] = 1;
+			}
+			// 001
+			else if (mask_pattern == 1 && i % 2 == 0){
+				data_mask[i][j] = 1;
+			}
+			// 010
+			else if (mask_pattern == 2 && j % 3 == 0){
+				data_mask[i][j] = 1;
+			}
+			// 011
+			else if (mask_pattern == 3 && (i+j)%3 == 0){
+				data_mask[i][j] = 1;
+			}
+			// 100
+			else if (mask_pattern == 4 && (i / 2 + j / 3) % 2 == 0){
+				data_mask[i][j] = 1;
+			}
+			// 101
+			else if (mask_pattern == 5 && (i * j) % 2 + (i * j) % 3 == 0){
+				data_mask[i][j] = 1;
+			}	
+			// 110
+			else if (mask_pattern == 6 && ((i * j) % 2 + (i * j) % 3 ) % 2 == 0){
+				data_mask[i][j] = 1;
+			}	
+			// 111
+			else if (mask_pattern == 7 && (((i + j) % 2 + (i * j) % 3 ) % 2 == 0)){
+				data_mask[i][j] = 1;
+			}	
+		}
+	}	 
+	
+	for (std::size_t i{0}; i < 21; ++i){
+		for (std::size_t j{0}; j < 21; ++j){
+			symbol[i][j] = symbol[i][j] ^ data_mask[i][j];
+		}
+	}
 }
 
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol) {
