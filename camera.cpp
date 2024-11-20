@@ -195,18 +195,36 @@ void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_patter
 		}
 	}
 }
-void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, unsigned int row, unsigned int col){
+void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col){
 	if (is_upwards){
-		for (unsigned int r{row + 3}; r >= row; --r){
-			for (unsigned int c{col + 1}; c >= col; --c){
+		for (int r{row + 3}; r >= row; --r){
+			for (int c{col + 1}; c >= col; --c){
 				//std::cout << r << ' ' << c << std::endl;
 				codewords.push_back(symbol[r][c]);
 			}
 		}
 	}
 	else {
-		for (unsigned int r{row}; r <= row + 3; ++r){
-			for (unsigned int c{col + 1}; c >= col; --c){
+		for (int r{row}; r <= row + 3; ++r){
+			for (int c{col + 1}; c >= col; --c){
+				//std::cout << r << ' ' << c << std::endl;
+				codewords.push_back(symbol[r][c]);
+			}
+		}
+	}
+}
+void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col){
+	if (is_upwards){
+		for (int r{row + 3}; r >= row; --r){
+			for (int c{col + 1}; c >= col; --c){
+				//std::cout << r << ' ' << c << std::endl;
+				codewords.push_back(symbol[r][c]);
+			}
+		}
+	}
+	else {
+		for (int r{row}; r <= row + 3; ++r){
+			for (int c{col + 1}; c >= col; --c){
 				//std::cout << r << ' ' << c << std::endl;
 				codewords.push_back(symbol[r][c]);
 			}
@@ -216,7 +234,7 @@ void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool
 		
 std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol){
 	std::vector<bool> codewords{};
-	unsigned int c{}, r{};
+	int c{}, r{};
 	// refer to codewords by their top left corner
 	
 	for (c = 19, r = 17;c >= 13; c-=2){
