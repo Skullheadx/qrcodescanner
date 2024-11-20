@@ -8,9 +8,11 @@ void print(std::vector<std::vector<bool>> &symbol);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
+void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, std::size_t row, std::size_t col);
 
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
 void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
+std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol);
 
 int main(){
 	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
@@ -29,6 +31,8 @@ int main(){
 	
 	print(symbol);
 
+	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
+	print(codewords);
 	
 	return 0;
 }
@@ -190,6 +194,122 @@ void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_patter
 			symbol[i][j] = symbol[i][j] ^ data_mask[i][j];
 		}
 	}
+}
+void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, unsigned int row, unsigned int col){
+	if (is_upwards){
+		for (unsigned int r{row + 3}; r >= row; --r){
+			for (unsigned int c{col + 1}; c >= col; --c){
+				//std::cout << r << ' ' << c << std::endl;
+				codewords.push_back(symbol[r][c]);
+			}
+		}
+	}
+	else {
+		for (unsigned int r{row}; r <= row + 3; ++r){
+			for (unsigned int c{col + 1}; c >= col; --c){
+				//std::cout << r << ' ' << c << std::endl;
+				codewords.push_back(symbol[r][c]);
+			}
+		}
+	}
+}
+		
+std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol){
+	std::vector<bool> codewords{};
+	unsigned int c{}, r{};
+	// refer to codewords by their top left corner
+	
+	for (c = 19, r = 17;c >= 13; c-=2){
+		for (r = 17;r >= 21 - 3 * 4;r-=4){
+			retrieve_codewords(symbol, codewords, true, r, c);
+		}
+		c -= 2;
+		for (r = 9;r < 20; r+=4){
+			retrieve_codewords(symbol, codewords, false, r, c);
+		}
+	}
+
+	for (r = 17;r >= 21 - 3 * 4;r-=4){
+		retrieve_codewords(symbol, codewords, true, r, c);
+	}
+	std::cout << r << ' ' << c << std::endl;
+/*	
+	// up special
+	std::vector<bool> character_symbol_special1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_special1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up_special(grid, x, y, character_symbol_special1);
+	
+	y = 0;
+	std::vector<bool> character_symbol_top1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_top1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_top1);
+	
+	// down special
+	x -= 2;	
+	y = 3;
+	std::vector<bool> character_symbol_top2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_top2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_top2);
+
+	
+	y = 6 +2;
+	std::vector<bool> character_symbol_special2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_special2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down_special(grid, x, y, character_symbol_special2);
+	
+
+	// printing down long col
+	y += 4;	
+	for (;y < 21;y+=4){
+		std::vector<bool> character_symbol(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+		codeword_counter++;
+		//for (auto i : character_symbol) {std::cout <<  i;}std::cout<<std::endl;
+		//std::cout << "x=" << x << ",y=" << y << std::endl;
+		grid = symbol_placement_down(grid, x, y, character_symbol);
+	}
+
+	// fill in data that is between two finder patterns
+	x -= 2;
+	y = 9;
+	std::vector<bool> character_symbol_horiz1(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz1) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_horiz1);
+	
+	x -= 3;
+	y = 12;
+	std::vector<bool> character_symbol_horiz2(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz2) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_horiz2);
+
+	x -= 2;
+	y = 9;
+	std::vector<bool> character_symbol_horiz3(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz3) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_up(grid, x, y, character_symbol_horiz3);
+	
+	x -= 2;
+	y = 12;
+	std::vector<bool> character_symbol_horiz4(codeword_message.begin() + codeword_counter * 8, codeword_message.begin() + (codeword_counter + 1) * 8);
+	codeword_counter++;
+	//for (auto i : character_symbol_horiz4) {std::cout <<  i;}std::cout<<std::endl;
+	//std::cout << "x=" << x << ",y=" << y << std::endl;
+	grid = symbol_placement_down(grid, x, y, character_symbol_horiz4);
+	*/
+	return codewords;
 }
 
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol) {
