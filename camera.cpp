@@ -44,12 +44,10 @@ int main(){
 	//print_codewords(data_codewords);
 	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
 	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
-	//print(character_count);
 	unsigned int character_count_indicator = convert_uint(character_count);
-	std::cout << character_count_indicator << std::endl;	
+	//std::cout << character_count_indicator << std::endl;	
 	std::vector<bool> input_data(data_codewords.begin() + 14, data_codewords.end());
-	print(input_data);
-	std::cout << std::endl;
+
 	std::string value = get_input_data(input_data, character_count_indicator);
 	std::cout << value << std::endl;
 	
