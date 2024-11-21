@@ -8,6 +8,7 @@ void print(std::vector<std::vector<bool>> &symbol);
 void print_codewords(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
+unsigned int convert_uint(std::vector<bool> &vec);
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
 void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, std::size_t row, std::size_t col);
 void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col);
@@ -15,6 +16,7 @@ void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vec
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
 void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
 std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol);
+std::string get_input_data(std::vector<bool> &input_data, unsigned int character_count_indicator);
 
 int main(){
 	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
@@ -30,7 +32,7 @@ int main(){
 	mask_pattern[1] = format_info[3];
 	mask_pattern[2] = format_info[4];
 	decode_mask(symbol, mask_pattern.to_ulong());
-	print(symbol);
+	//print(symbol);
 
 	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
 	//print_codewords(codewords);
@@ -42,13 +44,15 @@ int main(){
 	//print_codewords(data_codewords);
 	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
 	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
-	print(character_count);
+	//print(character_count);
+	unsigned int character_count_indicator = convert_uint(character_count);
+	std::cout << character_count_indicator << std::endl;	
+	std::vector<bool> input_data(data_codewords.begin() + 14, data_codewords.end());
+	print(input_data);
+	std::cout << std::endl;
+	std::string value = get_input_data(input_data, character_count_indicator);
+	std::cout << value << std::endl;
 	
-
-	 
-	
-
-
 	return 0;
 }
 
@@ -97,7 +101,14 @@ unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2){
 	}
 	return dist;
 }
-		
+unsigned int convert_uint(std::vector<bool> &vec){
+	unsigned int result{0};
+	for (unsigned int i{0}; i < vec.size(); ++i){
+		result += std::pow(2,vec.size() - i - 1) * vec[i];
+	}
+	return result;
+}
+
 
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol){
 	std::vector<bool> format_info(15,0);
@@ -311,6 +322,25 @@ std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symb
 	retrieve_codewords(symbol, codewords, false, r, c);
 	return codewords;
 }
+
+std::string get_input_data(std::vector<bool> &input_data, unsigned int character_count_indicator){
+	std::string data = "";
+	unsigned int data_length = character_count_indicator / 3 * 10;
+	for (std::size_t i{0}; i < data_length; i += 10){
+		std::vector<bool> subvec(input_data.begin() + i, input_data.begin() + i + 10);
+		data += std::to_string(convert_uint(subvec));
+	}
+	if (character_count_indicator % 3 == 1){
+		std::vector<bool> subvec(input_data.begin() + data_length, input_data.begin() + data_length + 4);
+		data += std::to_string(convert_uint(subvec));
+	}
+	else if (character_count_indicator % 3 == 2){
+		std::vector<bool> subvec(input_data.begin() + data_length, input_data.begin() + data_length + 7);
+		data += std::to_string(convert_uint(subvec));
+	}
+	return data;
+}
+		
 
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol) {
 	std::ifstream file{ filename };

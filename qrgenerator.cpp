@@ -53,14 +53,12 @@ int main() {
 			}	
 		}
 	}
-	/*
-	k{0};
+	k=0;
 	for (auto i : input_data_vector){
 		if (k++ % 10== 0){std::cout << " ";}
 		std::cout << i;
 	}
 	std::cout << std::endl;
-	*/
 	// Convert character count indicator to binary (10 bits for version 1-H):
 	std::bitset<10> character_count_indicator = input_length;
 	//for (std::size_t i{0}; i < 10; ++i){std::cout << character_count_indicator[i];}std::cout<<std::endl;
