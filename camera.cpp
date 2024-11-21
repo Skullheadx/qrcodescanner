@@ -5,7 +5,7 @@
 
 void print(std::vector<bool> &vec);
 void print(std::vector<std::vector<bool>> &symbol);
-void print_bytes(std::vector<bool> &vec);
+void print_codewords(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
@@ -30,18 +30,20 @@ int main(){
 	mask_pattern[1] = format_info[3];
 	mask_pattern[2] = format_info[4];
 	decode_mask(symbol, mask_pattern.to_ulong());
-	
 	print(symbol);
 
 	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
-	//print(codewords);
-	print_bytes(codewords);
+	//print_codewords(codewords);
 	//std::cout << "Number of codewords: " << codewords.size() / 8.0 << std::endl;
 	std::vector<bool> data_codewords(codewords.begin(), codewords.begin() + 16 * 8), error_correction_codewords(codewords.begin() + 16 * 8, codewords.end());
 
-	std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
-	std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
-	print_bytes(data_codewords);
+	//std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
+	//std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
+	//print_codewords(data_codewords);
+	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
+	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
+	print(character_count);
+	
 
 	 
 	
@@ -68,7 +70,7 @@ void print(std::vector<bool> &vec){
 	std::cout << std::endl;
 }
 
-void print_bytes(std::vector<bool> &vec){
+void print_codewords(std::vector<bool> &vec){
 	for (std::size_t i{0}; i < vec.size(); ++i){
 		if (i != 0 && i % 8 == 0){std::cout << ' ';}
 		std::cout << vec[i];

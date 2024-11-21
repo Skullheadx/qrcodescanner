@@ -28,7 +28,7 @@ int main() {
 	int k;
 	//std::cout << id_generator(69) << std::endl;
 	std::string input_data{"6969696969"};
-	const unsigned int input_length = 10;
+	const unsigned int input_length = input_data.size();
 	std::vector<bool> input_data_vector{};
 	for (unsigned int i{0}; i < input_length; i+=3){
 /* 8 - 6 = 2 
@@ -62,7 +62,8 @@ int main() {
 	std::cout << std::endl;
 	*/
 	// Convert character count indicator to binary (10 bits for version 1-H):
-	std::bitset<10> character_count_indicator {input_length};
+	std::bitset<10> character_count_indicator = input_length;
+	//for (std::size_t i{0}; i < 10; ++i){std::cout << character_count_indicator[i];}std::cout<<std::endl;
 	for (std::size_t i{0}; i < character_count_indicator.size(); ++i){
 		input_data_vector.insert(input_data_vector.begin(), character_count_indicator[i]);
 	}
