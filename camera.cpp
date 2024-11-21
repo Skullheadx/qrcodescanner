@@ -41,7 +41,9 @@ int main(){
 
 	std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
 	std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
-	//print_bytes(data_codewords);
+	print_bytes(data_codewords);
+
+	 
 	
 
 
