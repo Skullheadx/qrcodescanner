@@ -93,11 +93,11 @@ unsigned int convert_uint(std::vector<bool> &vec){
 std::string add_preceding_zeros(unsigned int n){
 	std::string result = std::to_string(n);
 	if (result.size() == 1){
-		result.insert(result.begin(), 0);
-		result.insert(result.begin(), 0);
+		result.insert(0, "0");
+		result.insert(0, "0");
 	}
 	else if (result.size() == 2){
-		result.insert(result.begin(), 0);
+		result.insert(0, "0");
 	}
 	return result;
 }
