@@ -4,7 +4,7 @@
 #include <cassert>
 #include <vector>
 #include <fstream>
-#define ID_LENGTH 34
+#define ID_LENGTH 9
 #define MODE_INDICATOR_LENGTH 4
 #define grid_length 21
 
@@ -22,12 +22,13 @@ std::vector<std::vector<bool>> symbol_placement_down_special(std::vector<std::ve
 unsigned int evaluate_symbol(std::vector<std::vector<bool>> grid);
 void print_grid(std::vector<std::vector<bool>> grid);
 std::vector<bool> calculate_remainder(const std::vector<bool>& data, const std::vector<bool>& generator);
-void create_image(std::vector<std::vector<bool>> &grid);
+void create_image(std::vector<std::vector<bool>> &grid, std::string filename);
 
 int main() {
 	int k;
-	//std::cout << id_generator(69) << std::endl;
-	std::string input_data{"6969696969"};
+	std::string input_data{id_generator(time(NULL))};
+	//std::string input_data{"123456789"};
+	std::string filename{input_data};
 	const unsigned int input_length = input_data.size();
 	std::vector<bool> input_data_vector{};
 	for (unsigned int i{0}; i < input_length; i+=3){
@@ -575,14 +576,13 @@ int main() {
 
 	print_grid(grid);
 
-
-	create_image(grid);
+	create_image(grid, filename);
 	return 0;
 
 }
 
-void create_image(std::vector<std::vector<bool>> &grid){
-	std::ofstream file("output.pbm");
+void create_image(std::vector<std::vector<bool>> &grid, std::string filename){
+	std::ofstream file(filename + ".pbm");
 	if (!file){
 		std::cerr << "error creating file" << std::endl;
 	}
