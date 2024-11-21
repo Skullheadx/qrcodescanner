@@ -419,7 +419,7 @@ int main() {
 	//std::cout << "x=" << x << ",y=" << y << std::endl;
 	grid = symbol_placement_down(grid, x, y, character_symbol_horiz4);
 
-	//print_grid(grid);
+	print_grid(grid);
 	
 	
 	std::vector<std::vector<std::vector<bool>>> mask_patterns(8, std::vector<std::vector<bool>>(21, std::vector<bool> (21, 0)));
@@ -503,10 +503,11 @@ int main() {
 	for (std::size_t ind{}; ind < 8; ++ind){
 		for (std::size_t i{}; i < 21; ++i){
 			for (std::size_t j{}; j < 21; ++j){
-				mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && grid[i][j]); // CHANGE test_grid BACK TO grid for REAL USE
-				if (mask_patterns[ind][i][j]){
-					mask_pattern_results[ind][i][j] = !mask_pattern_results[ind][i][j];
-				}
+				mask_pattern_results[ind][i][j] = grid[i][j] ^ mask_patterns[ind][i][j];
+				//mask_pattern_results[ind][i][j] = (mask_pattern_results[ind][i][j] && grid[i][j]); // CHANGE test_grid BACK TO grid for REAL USE
+				//if (mask_patterns[ind][i][j]){
+				//	mask_pattern_results[ind][i][j] = !mask_pattern_results[ind][i][j];
+				//}
 			}
 		}
 	}
@@ -525,6 +526,7 @@ int main() {
 	//mask_pattern_bits = {1,0,1}; // REMOVE TESTinG PurposES ONLy	
 
 	print_grid(mask_pattern_results[mask_pattern]);
+	grid = mask_pattern_results[mask_pattern];
 	std::cout << "best mask pattern: " << mask_pattern << std::endl;
 	for (auto i : mask_pattern_bits){std::cout << i;} std::cout << std::endl;
 		

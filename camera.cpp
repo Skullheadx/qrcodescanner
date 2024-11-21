@@ -5,6 +5,7 @@
 
 void print(std::vector<bool> &vec);
 void print(std::vector<std::vector<bool>> &symbol);
+void print_bytes(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
@@ -33,8 +34,17 @@ int main(){
 	print(symbol);
 
 	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
-	print(codewords);
+	//print(codewords);
+	print_bytes(codewords);
+	//std::cout << "Number of codewords: " << codewords.size() / 8.0 << std::endl;
+	std::vector<bool> data_codewords(codewords.begin(), codewords.begin() + 16 * 8), error_correction_codewords(codewords.begin() + 16 * 8, codewords.end());
+
+	std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
+	std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
+	//print_bytes(data_codewords);
 	
+
+
 	return 0;
 }
 
@@ -52,6 +62,14 @@ void print(std::vector<std::vector<bool>> &symbol){
 void print(std::vector<bool> &vec){
 	for (auto i : vec){
 		std::cout << i;
+	}
+	std::cout << std::endl;
+}
+
+void print_bytes(std::vector<bool> &vec){
+	for (std::size_t i{0}; i < vec.size(); ++i){
+		if (i != 0 && i % 8 == 0){std::cout << ' ';}
+		std::cout << vec[i];
 	}
 	std::cout << std::endl;
 }
