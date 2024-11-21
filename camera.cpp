@@ -9,6 +9,7 @@ void print_codewords(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 unsigned int convert_uint(std::vector<bool> &vec);
+std::string add_preceding_zeros(unsigned int n);
 void read_from_file(std::string filename, std::vector<std::vector<bool>> &symbol);
 void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, std::size_t row, std::size_t col);
 void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col);
@@ -89,6 +90,18 @@ unsigned int convert_uint(std::vector<bool> &vec){
 	return result;
 }
 
+std::string add_preceding_zeros(unsigned int n){
+	std::string result = std::to_string(n);
+	if (result.size() == 1){
+		result.insert(result.begin(), 0);
+		result.insert(result.begin(), 0);
+	}
+	else if (result.size() == 2){
+		result.insert(result.begin(), 0);
+	}
+	return result;
+}
+	
 
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol){
 	std::vector<bool> format_info(15,0);
@@ -308,7 +321,7 @@ std::string get_input_data(std::vector<bool> &input_data, unsigned int character
 	unsigned int data_length = character_count_indicator / 3 * 10;
 	for (std::size_t i{0}; i < data_length; i += 10){
 		std::vector<bool> subvec(input_data.begin() + i, input_data.begin() + i + 10);
-		data += std::to_string(convert_uint(subvec));
+		data += add_preceding_zeros(convert_uint(subvec));
 	}
 	if (character_count_indicator % 3 == 1){
 		std::vector<bool> subvec(input_data.begin() + data_length, input_data.begin() + data_length + 4);
