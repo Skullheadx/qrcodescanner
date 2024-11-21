@@ -9,7 +9,7 @@ void print_codewords(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
 unsigned int convert_uint(std::vector<bool> &vec);
-void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol);
+void read_from_file(std::string filename, std::vector<std::vector<bool>> &symbol);
 void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, std::size_t row, std::size_t col);
 void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col);
 
@@ -17,40 +17,22 @@ std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
 void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
 std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol);
 std::string get_input_data(std::vector<bool> &input_data, unsigned int character_count_indicator);
+std::string decode_symbol(std::vector<std::vector<bool>> &symbol);
 
 int main(){
-	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
-
-	read_words_from_file("output.pbm", symbol);
-	//print(symbol);
-	
-	std::vector<bool> format_info = get_format_info(symbol);
-
-	std::cout << "Format Info: "; print(format_info); std::cout << std::endl;
-	std::bitset<3> mask_pattern{};	
-	mask_pattern[0] = format_info[2];
-	mask_pattern[1] = format_info[3];
-	mask_pattern[2] = format_info[4];
-	decode_mask(symbol, mask_pattern.to_ulong());
-	//print(symbol);
-
-	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
-	//print_codewords(codewords);
-	//std::cout << "Number of codewords: " << codewords.size() / 8.0 << std::endl;
-	std::vector<bool> data_codewords(codewords.begin(), codewords.begin() + 16 * 8), error_correction_codewords(codewords.begin() + 16 * 8, codewords.end());
-
-	//std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
-	//std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
-	//print_codewords(data_codewords);
-	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
-	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
-	unsigned int character_count_indicator = convert_uint(character_count);
-	//std::cout << character_count_indicator << std::endl;	
-	std::vector<bool> input_data(data_codewords.begin() + 14, data_codewords.end());
-
-	std::string value = get_input_data(input_data, character_count_indicator);
-	std::cout << value << std::endl;
-	
+	std::vector<std::string> test_cases = {"012345678", "876543210", "000000000", "999999999", "123456789", "873703846", "884158624", "827515735", "869871935", "804235824"};
+	unsigned int test_counter = 1;
+	for (auto test : test_cases){
+		std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
+		read_from_file(test + ".pbm", symbol);
+		//print(symbol);
+		std::cout << "Test: " << test_counter << std::endl;
+		std::string result = decode_symbol(symbol);
+		std::cout << "Test Passed: " << (result == test) << std::endl;
+		std::cout << "Test:   " << test << std::endl;
+		std::cout << "Result: " << result << std::endl;
+		test_counter++;
+	}
 	return 0;
 }
 
@@ -340,7 +322,36 @@ std::string get_input_data(std::vector<bool> &input_data, unsigned int character
 }
 		
 
-void read_words_from_file(char const *filename, std::vector<std::vector<bool>> &symbol) {
+std::string decode_symbol(std::vector<std::vector<bool>> &symbol){
+	std::vector<bool> format_info = get_format_info(symbol);
+
+	//std::cout << "Format Info: "; print(format_info); std::cout << std::endl;
+	std::bitset<3> mask_pattern{};	
+	mask_pattern[0] = format_info[2];
+	mask_pattern[1] = format_info[3];
+	mask_pattern[2] = format_info[4];
+	decode_mask(symbol, mask_pattern.to_ulong());
+	//print(symbol);
+
+	std::vector<bool> codewords = get_codewords_from_symbol(symbol);
+	//print_codewords(codewords);
+	//std::cout << "Number of codewords: " << codewords.size() / 8.0 << std::endl;
+	std::vector<bool> data_codewords(codewords.begin(), codewords.begin() + 16 * 8), error_correction_codewords(codewords.begin() + 16 * 8, codewords.end());
+
+	//std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
+	//std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
+	//print_codewords(data_codewords);
+	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
+	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
+	unsigned int character_count_indicator = convert_uint(character_count);
+	//std::cout << character_count_indicator << std::endl;	
+	std::vector<bool> input_data(data_codewords.begin() + 14, data_codewords.end());
+
+	return get_input_data(input_data, character_count_indicator);
+}
+
+
+void read_from_file(std::string filename, std::vector<std::vector<bool>> &symbol){
 	std::ifstream file{ filename };
 	if (!file.is_open()) {
 	std::cout << "[ERROR] " << filename << " not found or could not open file" << std::endl;
