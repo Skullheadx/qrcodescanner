@@ -21,7 +21,9 @@ std::string get_input_data(std::vector<bool> &input_data, unsigned int character
 std::string decode_symbol(std::vector<std::vector<bool>> &symbol);
 
 int main(){
-	std::vector<std::string> test_cases = {"012345678", "876543210", "000000000", "999999999", "123456789", "873703846", "884158624", "827515735", "869871935", "804235824"};
+	//std::vector<std::string> test_cases = {"012345678", "876543210", "000000000", "999999999", "123456789", "873703846", "884158624", "827515735", "869871935", "804235824"};
+	std::vector<std::string> test_cases = {"6969696969"};
+	
 	unsigned int test_counter = 1;
 	for (auto test : test_cases){
 		std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
@@ -354,6 +356,7 @@ std::string decode_symbol(std::vector<std::vector<bool>> &symbol){
 	//std::cout << "Number of data codewords: " << data_codewords.size() / 8.0 << std::endl;
 	//std::cout << "Number of error correction codewords: " << error_correction_codewords.size() / 8.0 << std::endl;
 	//print_codewords(data_codewords);
+	//print_codewords(error_correction_codewords);
 	std::vector<bool> mode_indicator(data_codewords.begin(), data_codewords.begin() + 4);
 	std::vector<bool> character_count(data_codewords.begin() + 4, data_codewords.begin() + 14);
 	unsigned int character_count_indicator = convert_uint(character_count);
@@ -363,6 +366,10 @@ std::string decode_symbol(std::vector<std::vector<bool>> &symbol){
 	return get_input_data(input_data, character_count_indicator);
 }
 
+
+void error_correct(std::vector<bool> &codewords){
+	// Error correction doe per block: (c,k,r)^a = (26,16,4)^b
+}
 
 void read_from_file(std::string filename, std::vector<std::vector<bool>> &symbol){
 	std::ifstream file{ filename };
