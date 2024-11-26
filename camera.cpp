@@ -5,6 +5,7 @@
 
 void print(std::vector<bool> &vec);
 void print(std::vector<std::vector<bool>> &symbol);
+void print(std::vector<std::vector<unsigned int>> &grid);
 void print_codewords(std::vector<bool> &vec);
 void vec_xor(std::vector<bool> &v1, const std::vector<bool> v2);
 unsigned int distance(std::vector<bool> &v1, const std::vector<bool> &v2);
@@ -14,6 +15,7 @@ void read_from_file(std::string filename, std::vector<std::vector<bool>> &symbol
 void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, std::size_t row, std::size_t col);
 void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col);
 
+void apply_global_threshold(std::vector<std::vector<unsigned int>> &grid, std::vector<std::vector<bool>> &symbol);
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
 void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
 std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol);
@@ -23,19 +25,24 @@ std::string decode_symbol(std::vector<std::vector<bool>> &symbol);
 int main(){
 	//std::vector<std::string> test_cases = {"012345678", "876543210", "000000000", "999999999", "123456789", "873703846", "884158624", "827515735", "869871935", "804235824"};
 	std::vector<std::string> test_cases = {"6969696969"};
-	
-	unsigned int test_counter = 1;
-	for (auto test : test_cases){
-		std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
-		read_from_file(test + ".pbm", symbol);
-		//print(symbol);
-		std::cout << "Test: " << test_counter << std::endl;
-		std::string result = decode_symbol(symbol);
-		std::cout << "Test Passed: " << (result == test) << std::endl;
-		std::cout << "Test:   " << test << std::endl;
-		std::cout << "Result: " << result << std::endl;
-		test_counter++;
+
+	std::vector<std::vector<unsigned int>> camera_input(8, std::vector<unsigned int>(6,0));
+	unsigned int counter{0};
+	for (auto &r : camera_input){
+		for (auto &col:r){
+			col = 255 * (counter / 8.0);
+		}
+		counter++;
 	}
+	//print(camera_input);
+	std::vector<std::vector<bool>> symbol_noisy(8, std::vector<bool>(6,0));
+	apply_global_threshold(camera_input, symbol_noisy);
+	print(symbol_noisy);
+	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
+
+
+	
+
 	return 0;
 }
 
@@ -56,6 +63,11 @@ void print(std::vector<bool> &vec){
 	}
 	std::cout << std::endl;
 }
+
+void print(std::vector<std::vector<unsigned int>> &grid){
+	for (auto i :grid){for (auto j:i){std::cout << j << '\t';}std::cout << std::endl;}
+}
+
 
 void print_codewords(std::vector<bool> &vec){
 	for (std::size_t i{0}; i < vec.size(); ++i){
@@ -104,6 +116,30 @@ std::string add_preceding_zeros(unsigned int n){
 	return result;
 }
 	
+
+void apply_global_threshold(std::vector<std::vector<unsigned int>> &grid, std::vector<std::vector<bool>> &symbol){
+	unsigned int max{0}, min{255};
+	for (auto &r : grid){
+		for (auto &col:r){
+			if (col > max){max = col;}
+			if (col < min){min = col;}
+		}
+	}
+	unsigned int midway_reflectance{(max + min) / 2};
+	for (std::size_t i{0}; i < symbol.size(); ++i){
+		for (std::size_t j{0}; j < symbol[0].size(); ++j){
+			if (grid[i][j] >= midway_reflectance){
+				symbol[i][j] = 1;
+			}
+			else {
+				symbol[i][j] = 0;
+			}
+		}
+	}
+}
+
+
+
 
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol){
 	std::vector<bool> format_info(15,0);
