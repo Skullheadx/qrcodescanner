@@ -17,7 +17,7 @@ void retrieve_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool
 void retrieve_special_codewords(std::vector<std::vector<bool>> &symbol, std::vector<bool> &codewords, bool is_upwards, int row, int col);
 
 void apply_global_threshold(std::vector<std::vector<unsigned int>> &grid, std::vector<std::vector<bool>> &symbol);
-std::vector<std::vector<int>> get_finder_coords(std::vector<std::vector<bool>> &symbol);
+std::vector<std::vector<float>> get_finder_coords(std::vector<std::vector<bool>> &symbol);
 std::vector<bool> get_format_info(std::vector<std::vector<bool>> &symbol);
 void decode_mask(std::vector<std::vector<bool>> &symbol, std::size_t mask_pattern);
 std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symbol);
@@ -81,7 +81,9 @@ int main(){
 	apply_global_threshold(camera_input, symbol_noisy);
 	print(symbol_noisy);
 	
-	get_finder_coords(symbol_noisy);
+	std::vector<std::vector<float>> coords = get_finder_coords(symbol_noisy);
+	std::cout << std::endl << "coords:" << std::endl;
+	for (auto &i : coords){for (auto j:i){std::cout << j << " ";} std::cout << std::endl;} std::cout << std::endl;
 	
 
 	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
@@ -231,13 +233,122 @@ std::vector<int> get_finder_pattern_coords(std::vector<bool> &row){
 	}
 	return coords;
 }	
-	
 
-std::vector<std::vector<int>> get_finder_coords(std::vector<std::vector<bool>> &symbol){
-	std::vector<std::vector<int>> coords(3, std::vector<int>(2,0));
+std::vector<float> get_finder_pattern_col_coords(std::vector<bool> &row){
+	std::vector <int> values{};
+	for (std::size_t i{0}; i < row.size(); ++i){
+		if (values.size() == 0){
+			values.push_back(1);
+		}
+		else if (row[i] == row[i-1]){
+			values[values.size() - 1]++;
+		}
+		else {
+			values.push_back(1);
+		}
+	}
+	//std::cout << "values ";for (auto i:values){std::cout << i << " ";}std::cout << std::endl;
+	
+	std::vector<float> lengths{};
+	if (values.size() < 5){return lengths;}
+	for (std::size_t i{0}; i < values.size() - 5 + 1; ++i){
+		std::vector<int> subvec(values.begin() + i, values.begin() + i + 5);
+		//for (auto i:subvec){std::cout << i << " ";}std::cout << std::endl;
+		if (contains_ratio(subvec)){
+			int start{0}, end{0};
+			for (std::size_t j{0}; j < i + 5 - 1; ++j){
+				if (j < i){
+					start += values[j];
+				}
+				end += values[j];
+			}
+			//std::cout << "col coords: " << start << " " << end << std::endl;
+			lengths.push_back((end + start) / 2.0);
+		}
+	}
+	return lengths;
+}	
+
+
+bool in_vec(std::vector<std::size_t> &vec, std::size_t val){
+	for (auto i: vec){
+		if (val == i){
+			return true;
+		}
+	}
+	return false;
+}
+
+std::vector<std::vector<float>> get_finder_coords(std::vector<std::vector<bool>> &symbol){
+	std::vector<std::vector<float>> coords(3, std::vector<float>(2,0));
+	std::vector<std::size_t> seen{};
 	for (std::size_t row{0}; row < symbol.size(); ++row){
-		std::vector<int> c = get_finder_pattern_coords(symbol[row]);
-		for (auto i : c){std::cout << i << " ";}std::cout <<std::endl;
+		if (in_vec(seen, row)){continue;}
+		std::vector<int> col_coords = get_finder_pattern_coords(symbol[row]);
+		if (col_coords.size() == 2){
+			std::vector<int> a(2,0), b(2,0), c(2,0), d(2,0);
+			a = {static_cast<int>(row), col_coords[0]};
+			b = {static_cast<int>(row), col_coords[0]};
+			c = {static_cast<int>(row), col_coords[1]};
+			d = {static_cast<int>(row), col_coords[1]};
+			//for (auto i : col_coords){std::cout << i << " ";}std::cout <<std::endl;
+			seen.push_back(row);
+			for (std::size_t j{row}; j < symbol.size();++j){
+				std::vector<int> future_c = get_finder_pattern_coords(symbol[j]);
+				seen.push_back(j);
+				if (future_c.size() == 2){
+					b[0] = static_cast<int>(j);
+					b[1] = future_c[0];
+					d[0] = static_cast<int>(j);
+					d[1] = future_c[1];
+				}
+				else if (future_c.size() == 1){
+					if (future_c[0] > col_coords[0] + 6){
+						d[0] = static_cast<int>(j);
+						d[1] = future_c[0];
+					}
+					else{
+						b[0] = static_cast<int>(j);
+						b[1] = future_c[0];
+					}
+				}
+				else{
+					break;
+				}
+			}
+			//std::cout << "UPPER LEFT: " << b[0] << "," << b[1] << " " << a[0] << "," << a[1] << std::endl;
+			coords[0][0] = (b[0] + a[0]) / 2.0; 
+
+			std::vector<float> col_coords = get_finder_pattern_col_coords(symbol[static_cast<int>(coords[0][0])]);
+			coords[0][1] = col_coords[0];
+
+
+			coords[1][0] = (d[0] + c[0]) / 2.0; 
+			coords[1][1] = col_coords[1];
+		}
+		else if(col_coords.size() == 1){
+			std::vector<int> a(2,0), b(2,0);
+			a = {static_cast<int>(row), col_coords[0]};
+			b = {static_cast<int>(row), col_coords[0]};
+			//for (auto i : col_coords){std::cout << i << " ";}std::cout <<std::endl;
+			seen.push_back(row);
+			for (std::size_t j{row}; j < symbol.size();++j){
+				std::vector<int> future_c = get_finder_pattern_coords(symbol[j]);
+				seen.push_back(j);
+				if (future_c.size() == 1){
+					b[0] = static_cast<int>(j);
+					b[1] = future_c[0];
+				}
+				else{
+					break;
+				}
+			}
+			//std::cout << "LOWER LEFT: " << b[0] << "," << b[1] << " " << a[0] << "," << a[1] << std::endl;
+			coords[2][0] = (b[0] + a[0]) / 2.0;
+			std::vector<float> col_coord = get_finder_pattern_col_coords(symbol[static_cast<int>(coords[0][0])]);
+			coords[2][1] = col_coord[0]; 
+		}
+			
 	}
 
 	return coords;
