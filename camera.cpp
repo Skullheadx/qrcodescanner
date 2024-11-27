@@ -82,9 +82,11 @@ int main(){
 	print(symbol_noisy);
 	
 	std::vector<std::vector<float>> coords = get_finder_coords(symbol_noisy);
-	std::cout << std::endl << "coords:" << std::endl;
+	std::cout << "coords:" << std::endl;
 	for (auto &i : coords){for (auto j:i){std::cout << j << " ";} std::cout << std::endl;} std::cout << std::endl;
 	
+	float D = coords[1][1] - coords[0][1];
+	std::cout << "D: " << D << std::endl;
 
 	std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
 	return 0;
