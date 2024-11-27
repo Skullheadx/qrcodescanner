@@ -3,3 +3,12 @@
 *.png
 
 
+qrcodescanner-11-18-2024/changes.txt
+qrcodescanner-11-18-2024/main.cpp
+qrcodescanner-11-18-2024/output.pbm
+qrcodescanner-11-18-2024/qrgenerator.cpp
+qrcodescanner-11-21-2024/camera.cpp
+qrcodescanner-11-21-2024/changes.txt
+qrcodescanner-11-21-2024/main.cpp
+qrcodescanner-11-21-2024/output.pbm
+qrcodescanner-11-21-2024/qrgenerator.cpp
