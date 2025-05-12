@@ -26,7 +26,7 @@ int main(){
 	for (auto test : test_cases){
 		std::vector<std::vector<bool>> symbol(21, std::vector<bool>(21,0));
 		read_from_file(test + ".pbm", symbol);
-		//print(symbol);
+		print(symbol);
 		std::cout << "Test: " << test_counter << std::endl;
 		std::string result = decode_symbol(symbol);
 		std::cout << "Test Passed: " << (result == test) << std::endl;
@@ -316,8 +316,7 @@ std::vector<bool> get_codewords_from_symbol(std::vector<std::vector<bool>> &symb
 	return codewords;
 }
 
-std::string get_input_data(std::vector<bool> &input_data, unsigned int character_count_indicator){
-	std::string data = "";
+std::string get_input_data(std::vector<bool> &input_data, unsigned int character_count_indicator){ std::string data = "";
 	unsigned int data_length = character_count_indicator / 3 * 10;
 	for (std::size_t i{0}; i < data_length; i += 10){
 		std::vector<bool> subvec(input_data.begin() + i, input_data.begin() + i + 10);
